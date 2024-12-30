@@ -1,0 +1,17 @@
+[package]
+name = "File-Manager"
+version = "0.1.0"
+edition = "2021"
+publish = false
+authors = ["Akshay Raina <akshayr@mechasystems.com", "Shoaib Merchant <shoaibm@mechasystems.com>"]
+
+[dependencies]
+mctk_core = { git = "https://github.com/mecha-org/mctk.git" }
+mctk_macros = { git = "https://github.com/mecha-org/mctk.git" }
+mctk_smithay = { git = "https://github.com/mecha-org/mctk.git" }
+smithay-client-toolkit = "0.18.0"
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"]}
+anyhow = { version = "1.0.75", features = ["backtrace"]}
+tokio = { version = "1.33", features = ["full"] }
+fs_extra = "1.2"
