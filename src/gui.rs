@@ -51,9 +51,9 @@ pub struct FileManagerState {
     file_no_preview: bool,
     is_modal_open: bool,
     is_folder_options_modal:bool,
-    is_action_modal_open: bool, 
+    is_action_modal_open: bool, // New field for the action modal
     action_modal_title: String,
-    is_delete_modal_open: bool, 
+    is_delete_modal_open: bool, // New field for the delete modal
     delete_item_name: String,
     folder_name: String,
     disable_click: bool,
@@ -110,9 +110,9 @@ impl Component for FileManager {
             file_no_preview: false,
             is_modal_open: false,
             is_folder_options_modal:false,
-            is_action_modal_open: false, 
+            is_action_modal_open: false, // Initialize action modal visibility
             action_modal_title: "".to_string(),
-            is_delete_modal_open: false, 
+            is_delete_modal_open: false, // Initialize delete modal visibility
             delete_item_name: "".to_string(),
             folder_name: "".to_string(),
             disable_click: false,
@@ -199,7 +199,7 @@ impl Component for FileManager {
                             .unwrap_or_default()
                             .to_string_lossy()
                             .to_string();
-                        self.state_mut().is_delete_modal_open = true; 
+                        self.state_mut().is_delete_modal_open = true; // Open delete modal
                     } else {
                         self.state_mut().message = "No file/folder selected.".to_string();
                     }
@@ -221,7 +221,7 @@ impl Component for FileManager {
                 }
 
                 Message::UpdateFolderName(name) => {
-                    self.state_mut().folder_name = name.clone(); 
+                    self.state_mut().folder_name = name.clone(); // Update folder name from TextBox
                     self.state_ref();
                 }
 
@@ -270,9 +270,9 @@ impl Component for FileManager {
                 Message::OpenModal(value) => {
                     self.state_mut().is_modal_open = *value;
                     if *value {
-                        self.state_mut().disable_click = true; 
+                        self.state_mut().disable_click = true; // Disable clicks when modal is open
                     } else {
-                        self.state_mut().disable_click = false; 
+                        self.state_mut().disable_click = false; // Enable clicks when modal is closed
                     }
                     self.state_ref();
                 }
@@ -283,14 +283,14 @@ impl Component for FileManager {
                 }
 
                 Message::OpenActionModal(value) => {
-                    self.state_mut().is_action_modal_open = *value; 
+                    self.state_mut().is_action_modal_open = *value; // Open or close the action modal
                     self.state_mut().is_modal_open = false;
                     self.state_ref();
                     
                 }
 
                 Message::OpenDeleteModal(value) => {
-                    self.state_mut().is_delete_modal_open = *value; 
+                    self.state_mut().is_delete_modal_open = *value; // Open or close the action modal
                     self.state_mut().is_modal_open = false;
                     self.state_ref();
                 }
@@ -298,7 +298,7 @@ impl Component for FileManager {
                 Message::ConfirmAction => {
                     match self.state_ref().action_modal_title.as_str() {
                         "Create Folder" => {
-                            let folder_name = self.state_ref().folder_name.trim().to_string(); 
+                            let folder_name = self.state_ref().folder_name.trim().to_string(); // Get the folder name and trim whitespace
                             if folder_name.is_empty() {
                                 self.state_mut().message = "Folder name cannot be empty.".to_string();
                             } else {
@@ -312,7 +312,7 @@ impl Component for FileManager {
                             }
                         }
                         "Rename" => {
-                            let new_name = self.state_ref().folder_name.trim().to_string(); 
+                            let new_name = self.state_ref().folder_name.trim().to_string(); // Get the new name and trim whitespace
                             if new_name.is_empty() {
                                 self.state_mut().message = "New name cannot be empty.".to_string();
                             } else if let Some(selected) = self.state_ref().selected_file.clone() {
@@ -331,7 +331,7 @@ impl Component for FileManager {
                         }
                         _ => {}
                     }
-                    self.state_mut().is_action_modal_open = false; 
+                    self.state_mut().is_action_modal_open = false; // Close modal after action
                     self.state_ref(); 
                 }
                 // Handle deletion confirmation
@@ -354,7 +354,7 @@ impl Component for FileManager {
                             }
                         }
                     }
-                    self.state_mut().is_delete_modal_open = false; 
+                    self.state_mut().is_delete_modal_open = false; // Close delete modal
                     self.state_mut().entries = read_entries(self.state_ref().current_path.clone());
                     self.state_ref();
                 }
@@ -416,11 +416,26 @@ impl Component for FileManager {
                         cross_alignment: Alignment::Center,
                     ],
                 )
+                // .push(node!(
+                //     Div::new(),
+                //     lay![
+                //             size_pct: [20, Auto],
+                //             direction: Direction::Column,
+                //             axis_alignment: Alignment::Start,
+                //         ]
+                // ))
+                // .push(node!(
+                //     Image::new(""),
+                //     lay![
+                //         size:[24,24],
+                //         margin:[20.,0.,0.,10.]
+                //     ]
+                // ))
                 .push(
                     node!(
                         Div::new(),
                         lay![
-                            size_pct: [100, Auto],
+                            size_pct: [80, Auto],
                             direction: Direction::Column,
                             axis_alignment: Alignment::Start,
                         ]
@@ -459,8 +474,8 @@ impl Component for FileManager {
                     ]
                 ))
                 .push(node!(
-                    IconButton::new("dots_icon") 
-                        .on_click(Box::new(|| msg!(Message::OpenFolerModal(true)))) 
+                    IconButton::new("dots_icon") // Add the three-dots icon
+                        .on_click(Box::new(|| msg!(Message::OpenFolerModal(true)))) // Open the options modal
                         .icon_type(IconType::Png)
                         .style(
                             "size",
@@ -597,15 +612,16 @@ impl Component for FileManager {
             color: Color::WHITE,
             on_click: Some(Box::new(move || Message::GoBack)),
             on_icon_2_click: Some(Box::new(move || {
-               
+                // This will open the action modal without selecting the entry
                 msg!(Message::OpenActionModal(true));
+                // Return a message indicating the action was triggered
                 Message::OpenActionModal(true)
             })),
-            is_modal_open: s.is_modal_open, 
+            is_modal_open: s.is_modal_open, // Pass the modal state
             is_folder_options_modal: s.is_folder_options_modal,
             is_action_modal_open: s.is_action_modal_open,
             is_delete_modal_open: s.is_delete_modal_open,
-            disable_click: false, 
+            disable_click: false, // Initialize the flag to allow clicks
         };
 
         entries_div = entries_div.push(node!(back_row));
@@ -641,7 +657,7 @@ impl Component for FileManager {
                 ]
             )
             .push(node!(
-                Text::new(txt!(s.action_modal_title.clone()))
+                Text::new(txt!(s.action_modal_title.clone())) // Use the action modal title from state
                     .style("color", Color::WHITE)
                     .style("size", 18.)
                     .style("line_height", 20.)
@@ -709,7 +725,7 @@ impl Component for FileManager {
                             .style("line_height", 18.)
                             .style("radius", 8.)
                             .on_click(Box::new(move || {
-                                msg!(Message::OpenActionModal(false)) 
+                                msg!(Message::OpenActionModal(false)) // Close the action modal
                             })),
 
                             // .on_click(Box::new(move || {
@@ -731,7 +747,7 @@ impl Component for FileManager {
                             .style("line_height", 18.)
                             .style("radius", 8.)
                             .on_click(Box::new(move || {
-                                msg!(Message::ConfirmAction) 
+                                msg!(Message::ConfirmAction) // Trigger confirm action
                             })),
                         lay![
                             size_pct: [48, 100],
@@ -818,7 +834,7 @@ impl Component for FileManager {
                         .style("line_height", 18.)
                         .style("radius", 8.)
                         .on_click(Box::new(move || {
-                            msg!(Message::OpenDeleteModal(false)) 
+                            msg!(Message::OpenDeleteModal(false)) // Close modal
                         })),
                     lay![
                         size_pct: [48, 100],
@@ -835,7 +851,7 @@ impl Component for FileManager {
                         .style("line_height", 18.)
                         .style("radius", 8.)
                         .on_click(Box::new(move || {
-                            msg!(Message::ConfirmDelete) 
+                            msg!(Message::ConfirmDelete) // Trigger confirm action
                         })),
                     lay![
                         size_pct: [48, 100],
@@ -951,7 +967,7 @@ impl Component for FileManager {
                 .to_string();
             let entry_clone = Arc::new(entry.clone());
             let (main_icon, righticon) = if entry.is_dir() {
-                ("fold_icon".to_string(), "arrow_icon".to_string()) 
+                ("fold_icon".to_string(), "".to_string()) // Replace with actual folder icon path
             } else {
                 let ext = entry
                     .extension()
@@ -977,16 +993,16 @@ impl Component for FileManager {
                     Message::SelectEntry((*entry_clone).clone())
                 })),
                 on_icon_2_click: Some(Box::new(move || {
-                   
+                    // This will open the action modal without selecting the entry
                     msg!(Message::OpenActionModal(true));
-                    
+                    // Return a message indicating the action was triggered
                     Message::OpenActionModal(true)
                 })),
-                is_modal_open: s.is_modal_open, 
+                is_modal_open: s.is_modal_open, // Pass the modal state
                 is_folder_options_modal: s.is_folder_options_modal,
                 is_action_modal_open: s.is_action_modal_open,
                 is_delete_modal_open: s.is_delete_modal_open,
-                disable_click: false, 
+                disable_click: false, // Initialize the flag to allow clicks
             };
 
             entries_div = entries_div.push(node!(btn_row).key(i as u64));
@@ -1104,7 +1120,7 @@ pub struct Btnrow {
     pub icon_2: String,
     pub color: Color,
     pub on_click: Option<Box<dyn Fn() -> Message + Send + Sync>>,
-    pub on_icon_2_click: Option<Box<dyn Fn() -> Message + Send + Sync>>, 
+    pub on_icon_2_click: Option<Box<dyn Fn() -> Message + Send + Sync>>, // New field for icon 2 click
     pub is_modal_open: bool,
     pub is_action_modal_open: bool,
     pub is_delete_modal_open: bool,
@@ -1125,10 +1141,10 @@ impl std::fmt::Debug for Btnrow {
 
 impl Component for Btnrow {
     fn on_click(&mut self, event: &mut event::Event<event::Click>) {
-        
+        // Check if the modal is open
         if self.is_modal_open || self.is_action_modal_open || self.is_delete_modal_open || self.is_folder_options_modal || self.disable_click
         {
-            return; 
+            return; // Ignore the click if the modal is open
         }
         
 
@@ -1269,7 +1285,7 @@ fn file_viewer_view(s: &FileManagerState) -> node::Node {
         color: Color::MID_GREY
     }));
 
-    
+    // Content area scrollable
     let mut content = node!(
         Div::new().bg(Color::BLACK),
         lay![
@@ -1302,7 +1318,7 @@ fn file_viewer_view(s: &FileManagerState) -> node::Node {
             .style("line_height", 24.0)
             .style("font", "Space Grotesk")));
     } else if let Some(content_str) = &s.file_content {
-        
+        // Scrollable text area
         let mut scroll = node!(
             Scrollable::new(size!(440, 320)),
             lay![
